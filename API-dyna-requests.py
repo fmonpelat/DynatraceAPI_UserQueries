@@ -42,6 +42,16 @@ import pandas as pd
 
 def main():
 
+    # ONLY CHANGE THIS VARIABLES 
+    # USER QUERY
+    userQuery = "SELECT * FROM usersession"
+    # TIMEFRAMES
+    utc_date_str_from = '2020-02-18 00:00+0000'
+    utc_date_str_to = '2020-02-19 00:00+0000'   
+ 
+    
+    # -- DO NOT CHANGE THE FOLLOWING CODE  -- 
+    
     # environment variables token key and dynatrace hostname
     apiToken = os.environ['APIKEY']
     hostName = os.environ['HOSTNAME_DYNATRACE']
@@ -52,29 +62,25 @@ def main():
     except Exception as e:
         print("Exception: " + str(e))
         return
-        
-    # ONLY CHANGE THIS VARIABLES 
-    # USER QUERY
-    userQuery = "SELECT * FROM usersession"
-    # TIMEFRAMES
-    utc_date_str_from = '2020-02-19 11:44'
-    utc_date_str_to = '2020-02-20 11:44'   
- 
     
-    convertFiles(api)
-    return
-    
-    # DO NOT CHANGE THE FOLLOWING CODE 
+#    # for converting directly from json file decomment the following lines 
+#    filename1 = "response_1582221101317.json"
+#    filename2 = "response_1582221270631.json"
+#    convertFiles(api,filename1,filename2)
+#    return
     
     # format year-month-day hour:minutes
-    #utc_date_str_from = '2020-02-18 00:00'
-    dt = datetime.datetime.strptime(utc_date_str_from, '%Y-%m-%d %H:%M')
+    #utc_date_str_from = '2020-02-18 00:00+0000'
+    dt = datetime.datetime.strptime(utc_date_str_from, '%Y-%m-%d %H:%M%z')
     dt_from = int((dt.timestamp()* 1000))
     
     #utc_date_str_to = '2020-02-20 11:44'   
-    dt = datetime.datetime.strptime(utc_date_str_to, '%Y-%m-%d %H:%M')
+    dt = datetime.datetime.strptime(utc_date_str_to, '%Y-%m-%d %H:%M%z')
     dt_to = int((dt.timestamp()* 1000))
     
+    print('From utc timestamp (ms): ' + str(dt_from))
+    print('To utc timestamp (ms): ' + str(dt_to))
+
     # User session example query
     payload = {}
     query = "query={}&startTimestamp={}&endTimestamp={}&addDeepLinkFields=true&explain=false" \
@@ -91,14 +97,15 @@ def main():
     # Formatting response and export to excel from pandas dataframe
     dframe = api.convertJsonPandas(resObj)
     api.convertPandaToExcel("userQuery",dframe,"User Session Query")
-    print(dframe)
+    
+    #print(dframe)
 
     
-def convertFiles(api):
-    dFrame1 = api.convertFileJsonToPandas("data/response_1582143216942.json")
-    dFrame2 = api.convertFileJsonToPandas("data/response_1582143341055.json")
-    api.convertPandaToExcel("data/userQuery1-(response_1582143216942.json)",dFrame1,"User Session Query 1")
-    api.convertPandaToExcel("data/userQuery2-(response_1582143341055.json)",dFrame2,"User Session Query 2")
+def convertFiles(api,filename1,filename2):
+    dFrame1 = api.convertFileJsonToPandas("data/" + filename1)
+    dFrame2 = api.convertFileJsonToPandas("data/" + filename2)
+    api.convertPandaToExcel("data/userQuery1-(" + filename1 + ")",dFrame1,"User Session Query 1")
+    api.convertPandaToExcel("data/userQuery2-(" + filename2 + ")",dFrame2,"User Session Query 2")
 
     
     
@@ -125,8 +132,8 @@ class dynatraceAPIRequests:
         }
         
         response = requests.request(method, url, headers=headers, data = payload)
-        if self.debug:
-            print("RESPONSE CONTENT: " + str(response.content))
+#        if self.debug:
+#            print("RESPONSE CONTENT: " + str(response.content))
         return response 
     
     def convertJsonPandas(self,jsonObj):
