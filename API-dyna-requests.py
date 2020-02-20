@@ -46,7 +46,7 @@ def main():
     apiToken = os.environ['APIKEY']
     hostName = os.environ['HOSTNAME_DYNATRACE']
     try:
-        api = dynatraceAPI(hostname=hostName,
+        api = dynatraceAPIRequests(hostname=hostName,
                            token=apiToken,
                            debug=1);
     except Exception as e:
@@ -61,8 +61,8 @@ def main():
     utc_date_str_to = '2020-02-20 11:44'   
  
     
-    convertFiles()
-    exit()
+    convertFiles(api)
+    return
     
     # DO NOT CHANGE THE FOLLOWING CODE 
     
@@ -94,7 +94,7 @@ def main():
     print(dframe)
 
     
-def convertFiles():
+def convertFiles(api):
     dFrame1 = api.convertFileJsonToPandas("data/response_1582143216942.json")
     dFrame2 = api.convertFileJsonToPandas("data/response_1582143341055.json")
     api.convertPandaToExcel("data/userQuery1-(response_1582143216942.json)",dFrame1,"User Session Query 1")
@@ -102,7 +102,7 @@ def convertFiles():
 
     
     
-class dynatraceAPI:
+class dynatraceAPIRequests:
     def __init__(self,hostname,token,debug):
         self.debug = debug
         self.hostname = hostname
