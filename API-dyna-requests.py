@@ -30,11 +30,11 @@ SOFTWARE.
 """
 
 import json
-import time
+#import time
 import requests
 import urllib.parse
 import datetime
-import json
+#import json
 import os
 import pandas as pd
 
@@ -45,7 +45,7 @@ def main():
 
     # ONLY CHANGE THIS VARIABLES 
     # USER QUERY
-    userQuery = "SELECT * FROM usersession"
+    userQuery = "SELECT * FROM useraction"
     # TIMEFRAMES
     utc_date_str_from = '2020-02-18 00:00+0000'
     utc_date_str_to = '2020-02-19 00:00+0000'   
@@ -97,7 +97,7 @@ def main():
     
     # Formatting response and export to excel from pandas dataframe
     dframe = api.convertJsonPandas(resObj)
-    api.convertPandaToExcel("userQuery",dframe,"User Session Query")
+    api.convertPandaToExcel("data/userQuery",dframe,"User Session Query")
     
     #print(dframe)
 
