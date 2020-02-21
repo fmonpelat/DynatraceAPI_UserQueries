@@ -13,6 +13,10 @@ Preferences -> Ipython Console -> Startup
 ```
 import os; os.environ['APIKEY']='<api key>';os.environ['HOSTNAME_DYNATRACE']='<host name>'
 ```
+3. restart kernel (cmd + .), go to:
+```
+Consoles -> Restart Kernel
+```
 
 if not from console, export the variables:
 ```
