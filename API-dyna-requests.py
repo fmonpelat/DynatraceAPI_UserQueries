@@ -26,6 +26,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 """
 
 import json
@@ -63,11 +64,11 @@ def main():
         print("Exception: " + str(e))
         return
     
-#    # for converting directly from json file decomment the following lines 
-#    filename1 = "response_1582221101317.json"
-#    filename2 = "response_1582221270631.json"
-#    convertFiles(api,filename1,filename2)
-#    return
+    # for converting directly from json file decomment the following lines 
+    filename1 = "response_1582229341073.json"
+    filename2 = "response_1582229363419.json"
+    convertFiles(api,filename1,filename2)
+    return
     
     # format year-month-day hour:minutes
     #utc_date_str_from = '2020-02-18 00:00+0000'
