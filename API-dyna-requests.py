@@ -7,7 +7,7 @@ Created on Wed Feb 19 15:43:30 2020
 
 MIT License
 
-Copyright (c) [2020] [Facundo Monpelat]
+Copyright (c) [2020] [PowerCloud]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -39,16 +39,17 @@ import os
 import pandas as pd
 
 
-
-
 def main():
 
-    # ONLY CHANGE THIS VARIABLES 
+    # Tenaris configuration here
     # USER QUERY
-    userQuery = "SELECT * FROM useraction"
+    userQuery = "SELECT usersession.userSessionId,* FROM usersession"
+
+    # set timeframes from last executed and now...
+    # if datefile is empty check from last day: today 00:00 to now
     # TIMEFRAMES
-    utc_date_str_from = '2020-02-18 00:00+0000'
-    utc_date_str_to = '2020-02-19 00:00+0000'   
+    utc_date_str_from = '2020-05-25 00:00+0000'
+    utc_date_str_to = '2020-06-5 00:00+0000'   
  
     
     # -- DO NOT CHANGE THE FOLLOWING CODE  -- 
@@ -63,12 +64,7 @@ def main():
     except Exception as e:
         print("Exception: " + str(e))
         return
-    
-    # # for converting directly from json file decomment the following lines 
-    # filename1 = "response_1582229341073.json"
-    # filename2 = "response_1582229363419.json"
-    # convertFiles(api,filename1,filename2)
-    # return
+
     
     # format year-month-day hour:minutes
     #utc_date_str_from = '2020-02-18 00:00+0000'
@@ -90,23 +86,27 @@ def main():
     endpoint = "userSessionQueryLanguage/table" + parameters
 
     # API Request
-    res = api.request("GET",payload,endpoint);
-    resObj = res.json()
-    if( resObj['extrapolationLevel']!=1):
+    api.request("GET",payload,endpoint)
+    if( api.resObj['extrapolationLevel']!=1):
         print('extrapolationLevel is not == 1; so the data will not be complete!')
     
     # Formatting response and export to excel from pandas dataframe
-    dframe = api.convertJsonPandas(resObj)
-    api.convertPandaToExcel("data/userQuery",dframe,"User Session Query")
+    dframe = api.resPanda
+    # api.convertPandaToExcel("data/userQuery",dframe,"User Session Query")
     
-    #print(dframe)
+    print(dframe)
+    api.convertPandaToCsv("test2")
 
-    
-def convertFiles(api,filename1,filename2):
-    dFrame1 = api.convertFileJsonToPandas("data/" + filename1)
-    dFrame2 = api.convertFileJsonToPandas("data/" + filename2)
-    api.convertPandaToExcel("data/userQuery1-(" + filename1 + ")",dFrame1,"User Session Query 1")
-    api.convertPandaToExcel("data/userQuery2-(" + filename2 + ")",dFrame2,"User Session Query 2")
+    # # for converting directly from json file decomment the following lines 
+        # filename1 = "response_1582229341073.json"
+        # filename2 = "response_1582229363419.json"
+        # convertFiles(api,filename1,filename2)
+        # return
+    # def convertFiles(api,filename1,filename2):
+    #     dFrame1 = api.convertFileJsonToPandas("data/" + filename1)
+    #     dFrame2 = api.convertFileJsonToPandas("data/" + filename2)
+    #     api.convertPandaToExcel("data/userQuery1-(" + filename1 + ")",dFrame1,"User Session Query 1")
+    #     api.convertPandaToExcel("data/userQuery2-(" + filename2 + ")",dFrame2,"User Session Query 2")
 
     
     
@@ -117,6 +117,8 @@ class dynatraceAPIRequests:
         #self.tenantId = tenantId
         self.apiVersion="v1"
         self.token = token
+        self.resObj = ""
+        self.resPanda = pd.DataFrame() # pandas DataFrame
         
         
     def request(self,method,payload,endpoint):
@@ -133,14 +135,13 @@ class dynatraceAPIRequests:
         }
         
         response = requests.request(method, url, headers=headers, data = payload)
-#        if self.debug:
-#            print("RESPONSE CONTENT: " + str(response.content))
-        return response 
-    
-    def convertJsonPandas(self,jsonObj):
-        d = jsonObj
-        df = pd.DataFrame(d['values'],columns=d['columnNames'])
-        return df
+        #if self.debug:
+        #   print("RESPONSE CONTENT: " + str(response.content))
+        self.resObj = response.json()
+        # converting json to dataframe pandas 
+        d = self.resObj
+        self.resPanda = pd.DataFrame(d['values'],columns=d['columnNames'])
+        return response
     
     def convertFileJsonToPandas(self,filename):
         try:
@@ -152,10 +153,16 @@ class dynatraceAPIRequests:
             print("values entries: "+str(len(data['values'])))
         if(data):
             return self.convertJsonPandas(data)
-        
-        
+
+    def convertPandaToCsv(self,filename, dataframe = None ):
+        if dataframe is None:
+            dataframe = self.resPanda
+        csvfile = filename + ".csv"
+        dataframe.to_csv (csvfile, index = False)
+
+
     def convertPandaToExcel(self,filename,dataframe,sheetName):
-        #Set destination directory to save excel.
+       #Set destination directory to save excel.
        xlsFile = filename + '.xlsx'
        writer = pd.ExcelWriter(xlsFile, engine='xlsxwriter')
        dataframe.to_excel(writer,
