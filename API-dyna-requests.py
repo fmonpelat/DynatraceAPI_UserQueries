@@ -211,7 +211,7 @@ class dynatraceAPIRequests:
           'accept': 'application/json'
         }
         
-        response = requests.request(method, url, headers=headers, data = payload)
+        response = requests.request(method, url, headers=headers, data = payload, verify=False)
         #if self.debug:
         #   print("RESPONSE CONTENT: " + str(response.content))
         self.resObj = response.json()
